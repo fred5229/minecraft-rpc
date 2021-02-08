@@ -61,11 +61,11 @@ enum Orientation {
 }
 
 message Entities {
-    repeated EntityX Entities = 1;
+    repeated Entity entities = 1;
 }
 
 /** A single entity */
-message EntityX {
+message Entity {
     EntityType type = 1;
     Point position = 2;
 }
