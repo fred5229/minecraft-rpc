@@ -8,6 +8,9 @@ package dk.itu.real.ooe;
 service MinecraftService {
     /** Spawn multiple blocks. */
     rpc spawnBlocks (Blocks) returns (google.protobuf.Empty);
+    
+    /** Spawn multiple entities. */
+    rpc spawnEntities (Entities) returns (google.protobuf.Empty);
 
     /** Return all blocks in a cube */
     rpc readCube (Cube) returns (Blocks);
@@ -55,6 +58,16 @@ enum Orientation {
     EAST = 3;
     UP = 4;
     DOWN = 5;
+}
+
+message Entities {
+    repeated EntityX Entities = 1;
+}
+
+/** A single entity */
+message EntityX {
+    EntityType type = 1;
+    Point position = 2;
 }
 
 /** A block type. To get the corresponding Minecraft id name, lowercase and append "minecraft:", e.g. "minecraft:acacia_door" */
@@ -313,4 +326,8 @@ enum BlockType {
     YELLOW_FLOWER = 251;
     YELLOW_GLAZED_TERRACOTTA = 252;
     YELLOW_SHULKER_BOX = 253;
+}
+
+enum EntityType {
+    CREEPER = 0;
 }

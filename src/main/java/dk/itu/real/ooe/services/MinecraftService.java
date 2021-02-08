@@ -7,6 +7,11 @@ import dk.itu.real.ooe.Minecraft.*;
 import dk.itu.real.ooe.MinecraftServiceGrpc.MinecraftServiceImplBase;
 import io.grpc.stub.StreamObserver;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityTypes;
+import org.spongepowered.api.event.cause.*;
+import org.spongepowered.api.event.CauseStackManager.StackFrame;
+import org.spongepowered.api.event.cause.entity.spawn.SpawnTypes;
 import org.spongepowered.api.block.BlockState;
 import org.spongepowered.api.block.BlockType;
 import org.spongepowered.api.block.BlockTypes;
@@ -17,6 +22,7 @@ import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.util.Direction;
 import org.spongepowered.api.world.Location;
 import org.spongepowered.api.world.World;
+import com.flowpowered.math.vector.Vector3d;
 
 import java.lang.reflect.Field;
 import java.util.HashMap;
@@ -65,6 +71,31 @@ public class MinecraftService extends MinecraftServiceImplBase {
                     responseObserver.onCompleted();
                 }
         ).name("spawnBlocks").submit(plugin);
+    }
+
+    @Override
+    public void spawnEntities(Entities request, StreamObserver<Empty> responseObserver){
+        Task.builder().execute(() -> {
+            //is server avaible?
+            World world = Sponge.getServer().getWorlds().iterator().next();
+            for (EntityX entity : request.getEntitiesList()) {
+                try {
+                    org.spongepowered.api.entity.EntityType entityType = (org.spongepowered.api.entity.EntityType) EntityTypes.class.getField(entity.getType().toString()).get(null);
+                    Point pos = entity.getPosition();
+                    Entity newEntity = world.createEntity(EntityTypes.CREEPER, new Vector3d(pos.getX(), pos.getY(), pos.getZ()));
+                    try (StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
+                        frame.addContext(EventContextKeys.SPAWN_TYPE, SpawnTypes.PLUGIN);
+                        world.spawnEntity(newEntity);
+                    }
+                //What can entity spawns cause?
+                } catch (Exception e){
+                    this.plugin.getLogger().info(e.getMessage());
+                }
+
+                responseObserver.onNext(Empty.getDefaultInstance());
+                responseObserver.onCompleted();
+            }
+        }).name("spawnEntities").submit(plugin);
     }
 
     @Override
