@@ -9,7 +9,7 @@ import io.grpc.stub.StreamObserver;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
-import org.spongepowered.api.event.cause.*;
+import org.spongepowered.api.event.cause.EventContextKeys;
 import org.spongepowered.api.event.CauseStackManager.StackFrame;
 import org.spongepowered.api.event.cause.entity.spawn.SpawnTypes;
 import org.spongepowered.api.block.BlockState;
@@ -78,17 +78,17 @@ public class MinecraftService extends MinecraftServiceImplBase {
         Task.builder().execute(() -> {
             //is server avaible?
             World world = Sponge.getServer().getWorlds().iterator().next();
-            for (EntityX entity : request.getEntitiesList()) {
+            for (dk.itu.real.ooe.Minecraft.Entity entity : request.getEntitiesList()) {
                 try {
                     org.spongepowered.api.entity.EntityType entityType = (org.spongepowered.api.entity.EntityType) EntityTypes.class.getField(entity.getType().toString()).get(null);
                     Point pos = entity.getPosition();
-                    Entity newEntity = world.createEntity(EntityTypes.CREEPER, new Vector3d(pos.getX(), pos.getY(), pos.getZ()));
+                    org.spongepowered.api.entity.Entity newEntity = world.createEntity(EntityTypes.CREEPER, new Vector3d(pos.getX(), pos.getY(), pos.getZ()));
                     try (StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                         frame.addContext(EventContextKeys.SPAWN_TYPE, SpawnTypes.PLUGIN);
                         world.spawnEntity(newEntity);
                     }
                 //What can entity spawns cause?
-                } catch (Exception e){
+                } catch (IllegalStateException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e){
                     this.plugin.getLogger().info(e.getMessage());
                 }
 
