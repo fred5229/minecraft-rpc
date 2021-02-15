@@ -32,8 +32,8 @@ import org.spongepowered.api.entity.living.player.Player;
 public class ExampleListener {
     @Listener
     public void onSaveEvent(SaveWorldEvent event) {
-        World world = Sponge.getServer().getWorlds().iterator().next();
-        Player p = world.getPlayers().iterator().next();
-        p.kick();
+        //World world = Sponge.getServer().getWorlds().iterator().next();
+        //Player p = world.getPlayers().iterator().next();
+        //p.kick();
     }
 }

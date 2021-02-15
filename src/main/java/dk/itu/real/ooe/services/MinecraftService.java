@@ -24,11 +24,13 @@ import org.spongepowered.api.world.World;
 import com.flowpowered.math.vector.Vector3d;
 
 
+
 import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.ArrayList;
 
 
 public class MinecraftService extends MinecraftServiceImplBase {
@@ -82,21 +84,45 @@ public class MinecraftService extends MinecraftServiceImplBase {
     }
 
     @Override
+    public void readEntitiesInSphere(Sphere request, StreamObserver<Entities> responseObserver) {
+        Task.builder().execute(() -> {
+                Entities.Builder builder = Entities.newBuilder();
+                World world = Sponge.getServer().getWorlds().iterator().next();
+                ArrayList<Entity> entities = (ArrayList<Entity>) world.getNearbyEntities(new Vector3d(request.getCenter().getX(), request.getCenter().getY(), request.getCenter().getZ()), request.getRadius());
+                for (Entity entity : entities) {
+	                builder.addEntities(Minecraft.Entity.newBuilder()
+                            .setId(entity.getUniqueId().toString())
+                            .setType(Minecraft.EntityType.valueOf("ENTITY_" + entityNamesToEntityTypes.get(entity.getType().getName())))
+                            .setPosition(Point.newBuilder()
+                                            .setX((int)entity.getLocation().getX())
+                                            .setY((int)entity.getLocation().getY())
+                                            .setZ((int)entity.getLocation().getZ())
+                                            .build())
+                            .setIsLoaded(entity.isLoaded()))
+                            .build();
+                }
+                responseObserver.onNext(builder.build());
+                responseObserver.onCompleted();
+            }
+        ).name("readCube").submit(plugin);
+    }
+
+    @Override
     public void readEntities(Uuids request, StreamObserver<Entities> responseObserver) {
         Task.builder().execute(() -> {
             Entities.Builder builder = Entities.newBuilder();
             World world = Sponge.getServer().getWorlds().iterator().next();
-            for(Uuid id : request.getUuidsList()) {
-                Optional<Entity> entityOption = world.getEntity(UUID.fromString(id.getId()));
+            for(String id : request.getUuidsList()) {
+                Optional<Entity> entityOption = world.getEntity(UUID.fromString(id));
                 if(!entityOption.isPresent()){
                     builder.addEntities(Minecraft.Entity.newBuilder()
-                        //Why does it just remove the field?
-                        .setIsLoaded(false)
-                        ).build();
+                        //Proto ignores defualt values so there is no need to set type, position and isloaded
+                        .setId(id)).build();
                 } else {
                     org.spongepowered.api.entity.Entity entity = entityOption.get();
                     Location location = entity.getLocation();
                     builder.addEntities(Minecraft.Entity.newBuilder()
+                        .setId(id)
                         .setType(Minecraft.EntityType.valueOf("ENTITY_" + entityNamesToEntityTypes.get(entity.getType().getName())))
                         .setPosition(Point.newBuilder()
                                         .setX((int)location.getX())
@@ -113,26 +139,22 @@ public class MinecraftService extends MinecraftServiceImplBase {
     }
 
     @Override
-    public void spawnEntities(Entities request, StreamObserver<Uuids> responseObserver){
+    public void spawnEntities(SpawnEntities request, StreamObserver<Uuids> responseObserver){
         Task.builder().execute(() -> {
             Uuids.Builder builder = Uuids.newBuilder();
             //is server avaible?
             World world = Sponge.getServer().getWorlds().iterator().next();
-            for (dk.itu.real.ooe.Minecraft.Entity entity : request.getEntitiesList()) {
+            for (dk.itu.real.ooe.Minecraft.SpawnEntity entity : request.getSpawnEntitiesList()) {
                 try {
                     org.spongepowered.api.entity.EntityType entityType = (org.spongepowered.api.entity.EntityType) EntityTypes.class.getField(entity.getType().toString().split("_", 2)[1]).get(null);
-                    Point pos = entity.getPosition();
+                    Point pos = entity.getSpawnPosition();
                     org.spongepowered.api.entity.Entity newEntity = world.createEntity(entityType, new Vector3d(pos.getX(), pos.getY(), pos.getZ()));
                     try (StackFrame frame = Sponge.getCauseStackManager().pushCauseFrame()) {
                         frame.addContext(EventContextKeys.SPAWN_TYPE, SpawnTypes.PLUGIN);
                         world.spawnEntity(newEntity);
                     }
 
-                builder.addUuids(Uuid.newBuilder()
-                    .setId(newEntity.getUniqueId().toString())
-                ).build();
-
-                //What can entity spawns cause?
+                builder.addUuids(newEntity.getUniqueId().toString()).build();
                 } catch (IllegalStateException | NoSuchFieldException | SecurityException | IllegalArgumentException | IllegalAccessException e){
                     this.plugin.getLogger().info(e.getMessage());
                 }

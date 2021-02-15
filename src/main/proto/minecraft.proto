@@ -13,19 +13,26 @@ service MinecraftService {
     rpc readEntities (Uuids) returns (Entities);
 
     /** Spawn multiple entities. */
-    rpc spawnEntities (Entities) returns (Uuids);
+    rpc spawnEntities (SpawnEntities) returns (Uuids);
 
     /** Return all blocks in a cube */
     rpc readCube (Cube) returns (Blocks);
 
     /** Fill a cube with a block type */
     rpc fillCube (FillCubeRequest) returns (google.protobuf.Empty);
+
+    rpc readEntitiesInSphere(Sphere) returns (Entities);  
 }
 
 /** A 3D cube defined by two opposing corners min and max where min.x < max.x, min.y < max.y and min.z < max.z */
 message Cube {
     Point min = 1;
     Point max = 2;
+}
+
+message Sphere {
+    Point center = 1;
+    double radius = 2;
 }
 
 /** A request to fill the cube with the block type */
@@ -53,10 +60,6 @@ message Block {
     Orientation orientation = 3;
 }
 
-message Uuids {
-    repeated string uuids = 1;
-}
-
 /** An orientation in 3D space. */
 enum Orientation {
     NORTH = 0;
@@ -67,15 +70,29 @@ enum Orientation {
     DOWN = 5;
 }
 
+message Uuids {
+    repeated string uuids = 1;
+}
+
+message SpawnEntities {
+    repeated SpawnEntity spawnEntities = 1;
+}
+
+message SpawnEntity {
+    EntityType type = 1;
+    Point spawnPosition = 2;
+}
+
 message Entities {
     repeated Entity entities = 1;
 }
 
 /** A single entity */
 message Entity {
-    EntityType type = 1;
-    Point position = 2;
-    bool isLoaded = 3;
+    string id = 1;
+    EntityType type = 2;
+    Point position = 3;
+    bool isLoaded = 4;
 }
 
 /** A block type. To get the corresponding Minecraft id name, lowercase and append "minecraft:", e.g. "minecraft:acacia_door" */

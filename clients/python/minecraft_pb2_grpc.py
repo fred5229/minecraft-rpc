@@ -29,7 +29,7 @@ class MinecraftServiceStub(object):
                 )
         self.spawnEntities = channel.unary_unary(
                 '/dk.itu.real.ooe.MinecraftService/spawnEntities',
-                request_serializer=minecraft__pb2.Entities.SerializeToString,
+                request_serializer=minecraft__pb2.SpawnEntities.SerializeToString,
                 response_deserializer=minecraft__pb2.Uuids.FromString,
                 )
         self.readCube = channel.unary_unary(
@@ -41,6 +41,11 @@ class MinecraftServiceStub(object):
                 '/dk.itu.real.ooe.MinecraftService/fillCube',
                 request_serializer=minecraft__pb2.FillCubeRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                )
+        self.readEntitiesInSphere = channel.unary_unary(
+                '/dk.itu.real.ooe.MinecraftService/readEntitiesInSphere',
+                request_serializer=minecraft__pb2.Sphere.SerializeToString,
+                response_deserializer=minecraft__pb2.Entities.FromString,
                 )
 
 
@@ -84,6 +89,12 @@ class MinecraftServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def readEntitiesInSphere(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_MinecraftServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -99,7 +110,7 @@ def add_MinecraftServiceServicer_to_server(servicer, server):
             ),
             'spawnEntities': grpc.unary_unary_rpc_method_handler(
                     servicer.spawnEntities,
-                    request_deserializer=minecraft__pb2.Entities.FromString,
+                    request_deserializer=minecraft__pb2.SpawnEntities.FromString,
                     response_serializer=minecraft__pb2.Uuids.SerializeToString,
             ),
             'readCube': grpc.unary_unary_rpc_method_handler(
@@ -111,6 +122,11 @@ def add_MinecraftServiceServicer_to_server(servicer, server):
                     servicer.fillCube,
                     request_deserializer=minecraft__pb2.FillCubeRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            ),
+            'readEntitiesInSphere': grpc.unary_unary_rpc_method_handler(
+                    servicer.readEntitiesInSphere,
+                    request_deserializer=minecraft__pb2.Sphere.FromString,
+                    response_serializer=minecraft__pb2.Entities.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -170,7 +186,7 @@ class MinecraftService(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/dk.itu.real.ooe.MinecraftService/spawnEntities',
-            minecraft__pb2.Entities.SerializeToString,
+            minecraft__pb2.SpawnEntities.SerializeToString,
             minecraft__pb2.Uuids.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
@@ -206,5 +222,22 @@ class MinecraftService(object):
         return grpc.experimental.unary_unary(request, target, '/dk.itu.real.ooe.MinecraftService/fillCube',
             minecraft__pb2.FillCubeRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def readEntitiesInSphere(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/dk.itu.real.ooe.MinecraftService/readEntitiesInSphere',
+            minecraft__pb2.Sphere.SerializeToString,
+            minecraft__pb2.Entities.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
