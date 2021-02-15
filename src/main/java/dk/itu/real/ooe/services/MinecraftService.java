@@ -145,6 +145,7 @@ public class MinecraftService extends MinecraftServiceImplBase {
             //is server avaible?
             World world = Sponge.getServer().getWorlds().iterator().next();
             for (dk.itu.real.ooe.Minecraft.SpawnEntity entity : request.getSpawnEntitiesList()) {
+                world.loadChunk(entity.getSpawnPosition().getX(), entity.getSpawnPosition().getY(), entity.getSpawnPosition().getZ(), true).get();
                 try {
                     org.spongepowered.api.entity.EntityType entityType = (org.spongepowered.api.entity.EntityType) EntityTypes.class.getField(entity.getType().toString().split("_", 2)[1]).get(null);
                     Point pos = entity.getSpawnPosition();
