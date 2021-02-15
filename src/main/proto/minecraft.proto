@@ -53,10 +53,6 @@ message Block {
     Orientation orientation = 3;
 }
 
-message Uuid {
-    string id = 1;
-}
-
 message Uuids {
     repeated string uuids = 1;
 }
