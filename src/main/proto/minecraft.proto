@@ -13,7 +13,7 @@ service MinecraftService {
     rpc readEntities (Uuids) returns (Entities);
 
     /** Spawn multiple entities. */
-    rpc spawnEntities (Entities) returns (Uuids);
+    rpc spawnEntities (SpawnEntities) returns (Uuids);
 
     /** Return all blocks in a cube */
     rpc readCube (Cube) returns (Blocks);
@@ -53,14 +53,6 @@ message Block {
     Orientation orientation = 3;
 }
 
-message Uuid {
-    string id = 1;
-}
-
-message Uuids {
-    repeated Uuid uuids = 1;
-}
-
 /** An orientation in 3D space. */
 enum Orientation {
     NORTH = 0;
@@ -71,15 +63,33 @@ enum Orientation {
     DOWN = 5;
 }
 
+message Uuid {
+    string id = 1;
+}
+
+message Uuids {
+    repeated Uuid uuids = 1;
+}
+
+message SpawnEntities {
+    repeated SpawnEntity spawnEntities = 1;
+}
+
+message SpawnEntity {
+    EntityType type = 1;
+    Point spawnPosition = 2;
+}
+
 message Entities {
     repeated Entity entities = 1;
 }
 
 /** A single entity */
 message Entity {
-    EntityType type = 1;
-    Point position = 2;
-    bool isLoaded = 3;
+    Uuid id = 1;
+    EntityType type = 2;
+    Point position = 3;
+    bool isLoaded = 4;
 }
 
 /** A block type. To get the corresponding Minecraft id name, lowercase and append "minecraft:", e.g. "minecraft:acacia_door" */

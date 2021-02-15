@@ -29,7 +29,7 @@ class MinecraftServiceStub(object):
                 )
         self.spawnEntities = channel.unary_unary(
                 '/dk.itu.real.ooe.MinecraftService/spawnEntities',
-                request_serializer=minecraft__pb2.Entities.SerializeToString,
+                request_serializer=minecraft__pb2.SpawnEntities.SerializeToString,
                 response_deserializer=minecraft__pb2.Uuids.FromString,
                 )
         self.readCube = channel.unary_unary(
@@ -99,7 +99,7 @@ def add_MinecraftServiceServicer_to_server(servicer, server):
             ),
             'spawnEntities': grpc.unary_unary_rpc_method_handler(
                     servicer.spawnEntities,
-                    request_deserializer=minecraft__pb2.Entities.FromString,
+                    request_deserializer=minecraft__pb2.SpawnEntities.FromString,
                     response_serializer=minecraft__pb2.Uuids.SerializeToString,
             ),
             'readCube': grpc.unary_unary_rpc_method_handler(
@@ -170,7 +170,7 @@ class MinecraftService(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/dk.itu.real.ooe.MinecraftService/spawnEntities',
-            minecraft__pb2.Entities.SerializeToString,
+            minecraft__pb2.SpawnEntities.SerializeToString,
             minecraft__pb2.Uuids.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
