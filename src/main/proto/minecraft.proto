@@ -58,7 +58,7 @@ message Uuid {
 }
 
 message Uuids {
-    repeated Uuid uuids = 1;
+    repeated string uuids = 1;
 }
 
 /** An orientation in 3D space. */

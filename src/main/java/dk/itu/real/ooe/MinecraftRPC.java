@@ -9,6 +9,13 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.game.state.GamePreInitializationEvent;
 import org.spongepowered.api.plugin.Plugin;
 import org.spongepowered.api.plugin.PluginContainer;
+import org.spongepowered.api.event.EventListener;
+
+import dk.itu.real.ooe.services.ExampleListener;
+import org.spongepowered.api.Sponge;
+
+
+
 
 import java.io.IOException;
 
@@ -28,6 +35,11 @@ public class MinecraftRPC {
      */
     @Listener
     public void onPreInitialization(GamePreInitializationEvent event) throws IOException, IllegalAccessException {
+        
+        //For testing 
+        Sponge.getEventManager().registerListeners(this, new ExampleListener());        
+        //
+
         PluginContainer plugin = game.getPluginManager().getPlugin("minecraft_rpc").get();
         ServerBuilder.forPort(5001).addService(new MinecraftService(plugin)).build().start();
         logger.info("Listening on 5001");
